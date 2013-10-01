@@ -1,5 +1,5 @@
 " Vim syntax file
-" Language:     Cucumber
+" Language:     Behave (more or less original Cucumber)
 " Maintainer:   Tim Pope <vimNOSPAM@tpope.org>
 " Filenames:    *.feature
 " Last Change:	2010 May 21
@@ -10,7 +10,7 @@ endif
 syn case match
 syn sync minlines=20
 
-let g:cucumber_languages = {
+let g:behave_languages = {
       \"en": {"and": "And\\>", "background": "Background\\>", "but": "But\\>", "examples": "Scenarios\\>\\|Examples\\>", "feature": "Business Need\\>\\|Feature\\>\\|Ability\\>", "given": "Given\\>", "scenario": "Scenario\\>", "scenario_outline": "Scenario Template\\>\\|Scenario Outline\\>", "then": "Then\\>", "when": "When\\>"},
       \"ar": {"and": "\\%u0648\\>", "background": "\\%u0627\\%u0644\\%u062e\\%u0644\\%u0641\\%u064a\\%u0629\\>", "but": "\\%u0644\\%u0643\\%u0646\\>", "examples": "\\%u0627\\%u0645\\%u062b\\%u0644\\%u0629\\>", "feature": "\\%u062e\\%u0627\\%u0635\\%u064a\\%u0629\\>", "given": "\\%u0628\\%u0641\\%u0631\\%u0636\\>", "scenario": "\\%u0633\\%u064a\\%u0646\\%u0627\\%u0631\\%u064a\\%u0648\\>", "scenario_outline": "\\%u0633\\%u064a\\%u0646\\%u0627\\%u0631\\%u064a\\%u0648 \\%u0645\\%u062e\\%u0637\\%u0637\\>", "then": "\\%u0627\\%u0630\\%u0627\\%u064b\\>\\|\\%u062b\\%u0645\\>", "when": "\\%u0639\\%u0646\\%u062f\\%u0645\\%u0627\\>\\|\\%u0645\\%u062a\\%u0649\\>"},
       \"bg": {"and": "\\%u0418\\>", "background": "\\%u041f\\%u0440\\%u0435\\%u0434\\%u0438\\%u0441\\%u0442\\%u043e\\%u0440\\%u0438\\%u044f\\>", "but": "\\%u041d\\%u043e\\>", "examples": "\\%u041f\\%u0440\\%u0438\\%u043c\\%u0435\\%u0440\\%u0438\\>", "feature": "\\%u0424\\%u0443\\%u043d\\%u043a\\%u0446\\%u0438\\%u043e\\%u043d\\%u0430\\%u043b\\%u043d\\%u043e\\%u0441\\%u0442\\>", "given": "\\%u0414\\%u0430\\%u0434\\%u0435\\%u043d\\%u043e\\>", "scenario": "\\%u0421\\%u0446\\%u0435\\%u043d\\%u0430\\%u0440\\%u0438\\%u0439\\>", "scenario_outline": "\\%u0420\\%u0430\\%u043c\\%u043a\\%u0430 \\%u043d\\%u0430 \\%u0441\\%u0446\\%u0435\\%u043d\\%u0430\\%u0440\\%u0438\\%u0439\\>", "then": "\\%u0422\\%u043e\\>", "when": "\\%u041a\\%u043e\\%u0433\\%u0430\\%u0442\\%u043e\\>"},
@@ -71,66 +71,66 @@ function! s:pattern(key)
   if &fileencoding == 'latin1' && language == ''
     let language = 'en'
   endif
-  if has_key(g:cucumber_languages, language)
-    let languages = [g:cucumber_languages[language]]
+  if has_key(g:behave_languages, language)
+    let languages = [g:behave_languages[language]]
   else
-    let languages = values(g:cucumber_languages)
+    let languages = values(g:behave_languages)
   end
   return '\<\%('.join(map(languages,'get(v:val,a:key,"\\%(a\\&b\\)")'),'\|').'\)'
 endfunction
 
 function! s:Add(name)
-  let next = " skipempty skipwhite nextgroup=".join(map(["Region","AndRegion","ButRegion","Comment","String","Table"],'"cucumber".a:name.v:val'),",")
-  exe "syn region cucumber".a:name.'Region matchgroup=cucumber'.a:name.' start="\%(^\s*\)\@<=\%('.s:pattern(tolower(a:name)).'\)" end="$"'.next
-  exe 'syn region cucumber'.a:name.'AndRegion matchgroup=cucumber'.a:name.'And start="\%(^\s*\)\@<='.s:pattern('and').'" end="$" contained'.next
-  exe 'syn region cucumber'.a:name.'ButRegion matchgroup=cucumber'.a:name.'But start="\%(^\s*\)\@<='.s:pattern('but').'" end="$" contained'.next
-  exe 'syn match cucumber'.a:name.'Comment "\%(^\s*\)\@<=#.*" contained'.next
-  exe 'syn region cucumber'.a:name.'String start=+\%(^\s*\)\@<="""+ end=+"""+ contained'.next
-  exe 'syn match cucumber'.a:name.'Table "\%(^\s*\)\@<=|.*" contained contains=cucumberDelimiter'.next
-  exe 'hi def link cucumber'.a:name.'Comment cucumberComment'
-  exe 'hi def link cucumber'.a:name.'String cucumberString'
-  exe 'hi def link cucumber'.a:name.'But cucumber'.a:name.'And'
-  exe 'hi def link cucumber'.a:name.'And cucumber'.a:name
-  exe 'syn cluster cucumberStepRegions add=cucumber'.a:name.'Region,cucumber'.a:name.'AndRegion,cucumber'.a:name.'ButRegion'
+  let next = " skipempty skipwhite nextgroup=".join(map(["Region","AndRegion","ButRegion","Comment","String","Table"],'"behave".a:name.v:val'),",")
+  exe "syn region behave".a:name.'Region matchgroup=behave'.a:name.' start="\%(^\s*\)\@<=\%('.s:pattern(tolower(a:name)).'\)" end="$"'.next
+  exe 'syn region behave'.a:name.'AndRegion matchgroup=behave'.a:name.'And start="\%(^\s*\)\@<='.s:pattern('and').'" end="$" contained'.next
+  exe 'syn region behave'.a:name.'ButRegion matchgroup=behave'.a:name.'But start="\%(^\s*\)\@<='.s:pattern('but').'" end="$" contained'.next
+  exe 'syn match behave'.a:name.'Comment "\%(^\s*\)\@<=#.*" contained'.next
+  exe 'syn region behave'.a:name.'String start=+\%(^\s*\)\@<="""+ end=+"""+ contained'.next
+  exe 'syn match behave'.a:name.'Table "\%(^\s*\)\@<=|.*" contained contains=behaveDelimiter'.next
+  exe 'hi def link behave'.a:name.'Comment behaveComment'
+  exe 'hi def link behave'.a:name.'String behaveString'
+  exe 'hi def link behave'.a:name.'But behave'.a:name.'And'
+  exe 'hi def link behave'.a:name.'And behave'.a:name
+  exe 'syn cluster behaveStepRegions add=behave'.a:name.'Region,behave'.a:name.'AndRegion,behave'.a:name.'ButRegion'
 endfunction
 
-syn match   cucumberComment  "\%(^\s*\)\@<=#.*"
-syn match   cucumberComment  "\%(\%^\s*\)\@<=#.*" contains=cucumberLanguage
-syn match   cucumberLanguage "\%(#\s*\)\@<=language:" contained
-syn match   cucumberUnparsed "\S.*" nextgroup=cucumberUnparsedComment,cucumberUnparsed,cucumberTags,cucumberBackground,cucumberScenario,cucumberScenarioOutline,cucumberExamples skipwhite skipempty contained
-syn match   cucumberUnparsedComment "#.*" nextgroup=cucumberUnparsedComment,cucumberUnparsed,cucumberTags,cucumberBackground,cucumberScenario,cucumberScenarioOutline,cucumberExamples skipwhite skipempty contained
+syn match   behaveComment  "\%(^\s*\)\@<=#.*"
+syn match   behaveComment  "\%(\%^\s*\)\@<=#.*" contains=behaveLanguage
+syn match   behaveLanguage "\%(#\s*\)\@<=language:" contained
+syn match   behaveUnparsed "\S.*" nextgroup=behaveUnparsedComment,behaveUnparsed,behaveTags,behaveBackground,behaveScenario,behaveScenarioOutline,behaveExamples skipwhite skipempty contained
+syn match   behaveUnparsedComment "#.*" nextgroup=behaveUnparsedComment,behaveUnparsed,behaveTags,behaveBackground,behaveScenario,behaveScenarioOutline,behaveExamples skipwhite skipempty contained
 
-exe 'syn match cucumberFeature "\%(^\s*\)\@<='.s:pattern('feature').':" nextgroup=cucumberUnparsedComment,cucumberUnparsed,cucumberBackground,cucumberScenario,cucumberScenarioOutline,cucumberExamples skipwhite skipempty'
-exe 'syn match cucumberBackground "\%(^\s*\)\@<='.s:pattern('background').':"'
-exe 'syn match cucumberScenario "\%(^\s*\)\@<='.s:pattern('scenario').':"'
-exe 'syn match cucumberScenarioOutline "\%(^\s*\)\@<='.s:pattern('scenario_outline').':"'
-exe 'syn match cucumberExamples "\%(^\s*\)\@<='.s:pattern('examples').':" nextgroup=cucumberExampleTable skipempty skipwhite'
+exe 'syn match behaveFeature "\%(^\s*\)\@<='.s:pattern('feature').':" nextgroup=behaveUnparsedComment,behaveUnparsed,behaveBackground,behaveScenario,behaveScenarioOutline,behaveExamples skipwhite skipempty'
+exe 'syn match behaveBackground "\%(^\s*\)\@<='.s:pattern('background').':"'
+exe 'syn match behaveScenario "\%(^\s*\)\@<='.s:pattern('scenario').':"'
+exe 'syn match behaveScenarioOutline "\%(^\s*\)\@<='.s:pattern('scenario_outline').':"'
+exe 'syn match behaveExamples "\%(^\s*\)\@<='.s:pattern('examples').':" nextgroup=behaveExampleTable skipempty skipwhite'
 
-syn match   cucumberPlaceholder   "<[^<>]*>" contained containedin=@cucumberStepRegions
-syn match   cucumberExampleTable  "\%(^\s*\)\@<=|.*" contains=cucumberDelimiter
-syn match   cucumberDelimiter     "\\\@<!\%(\\\\\)*\zs|" contained
-syn match   cucumberTags          "\%(^\s*\)\@<=\%(@[^@[:space:]]\+\s\+\)*@[^@[:space:]]\+\s*$" contains=@NoSpell
+syn match   behavePlaceholder   "<[^<>]*>" contained containedin=@behaveStepRegions
+syn match   behaveExampleTable  "\%(^\s*\)\@<=|.*" contains=behaveDelimiter
+syn match   behaveDelimiter     "\\\@<!\%(\\\\\)*\zs|" contained
+syn match   behaveTags          "\%(^\s*\)\@<=\%(@[^@[:space:]]\+\s\+\)*@[^@[:space:]]\+\s*$" contains=@NoSpell
 
 call s:Add('Then')
 call s:Add('When')
 call s:Add('Given')
 
-hi def link cucumberUnparsedComment   cucumberComment
-hi def link cucumberComment           Comment
-hi def link cucumberLanguage          SpecialComment
-hi def link cucumberFeature           Macro
-hi def link cucumberBackground        Define
-hi def link cucumberScenario          Define
-hi def link cucumberScenarioOutline   Define
-hi def link cucumberExamples          Define
-hi def link cucumberPlaceholder       Constant
-hi def link cucumberDelimiter         Delimiter
-hi def link cucumberTags              Tag
-hi def link cucumberString            String
-hi def link cucumberGiven             Conditional
-hi def link cucumberWhen              Function
-hi def link cucumberThen              Type
+hi def link behaveUnparsedComment   behaveComment
+hi def link behaveComment           Comment
+hi def link behaveLanguage          SpecialComment
+hi def link behaveFeature           Macro
+hi def link behaveBackground        Define
+hi def link behaveScenario          Define
+hi def link behaveScenarioOutline   Define
+hi def link behaveExamples          Define
+hi def link behavePlaceholder       Constant
+hi def link behaveDelimiter         Delimiter
+hi def link behaveTags              Tag
+hi def link behaveString            String
+hi def link behaveGiven             Conditional
+hi def link behaveWhen              Function
+hi def link behaveThen              Type
 
-let b:current_syntax = "cucumber"
+let b:current_syntax = "behave"
 
 " vim:set sts=2 sw=2:

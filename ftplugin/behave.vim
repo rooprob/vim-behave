@@ -1,6 +1,7 @@
 " Vim filetype plugin
-" Language:	Cucumber
-" Maintainer:	Tim Pope <vimNOSPAM@tpope.org>
+" Language:	Behave
+" Maintainer: Matěj Cepl mceplATceplDOTeu
+" Original Author:	Tim Pope <vimNOSPAM@tpope.org>
 " Last Change:	2010 Aug 09
 
 " Only do this when not done yet for this buffer
@@ -11,13 +12,13 @@ let b:did_ftplugin = 1
 
 setlocal formatoptions-=t formatoptions+=croql
 setlocal comments=:# commentstring=#\ %s
-setlocal omnifunc=CucumberComplete
+setlocal omnifunc=BehaveComplete
 
 let b:undo_ftplugin = "setl fo< com< cms< ofu<"
 
-let b:cucumber_root = expand('%:p:h:s?.*[\/]\%(features\|stories\)\zs[\/].*??')
+let b:behave_root = expand('%:p:h:s?.*[\/]\%(features\|stories\)\zs[\/].*??')
 
-if !exists("g:no_plugin_maps") && !exists("g:no_cucumber_maps")
+if !exists("g:no_plugin_maps") && !exists("g:no_behave_maps")
   nnoremap <silent><buffer> <C-]>       :<C-U>exe <SID>jump('edit',v:count)<CR>
   nnoremap <silent><buffer> [<C-D>      :<C-U>exe <SID>jump('edit',v:count)<CR>
   nnoremap <silent><buffer> ]<C-D>      :<C-U>exe <SID>jump('edit',v:count)<CR>
@@ -56,7 +57,7 @@ endfunction
 function! s:allsteps()
   let step_pattern = '\C^\s*\K\k*\>\s*(\=\s*\zs\S.\{-\}\ze\s*)\=\s*\%(do\|{\)\s*\%(|[^|]*|\s*\)\=\%($\|#\)'
   let steps = []
-  for file in split(glob(b:cucumber_root.'/**/*.rb'),"\n")
+  for file in split(glob(b:behave_root.'/**/*.rb'),"\n")
     let lines = readfile(file)
     let num = 0
     for line in lines
@@ -107,10 +108,10 @@ function! s:bsub(target,pattern,replacement)
   return  substitute(a:target,'\C\\\@<!'.a:pattern,a:replacement,'g')
 endfunction
 
-function! CucumberComplete(findstart,base) abort
+function! BehaveComplete(findstart,base) abort
   let indent = indent('.')
   let group = synIDattr(synID(line('.'),indent+1,1),'name')
-  let type = matchstr(group,'\Ccucumber\zs\%(Given\|When\|Then\)')
+  let type = matchstr(group,'\Cbehave\zs\%(Given\|When\|Then\)')
   let e = matchend(getline('.'),'^\s*\S\+\s')
   if type == '' || col('.') < col('$') || e < 0
     return -1
