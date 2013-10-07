@@ -57,6 +57,8 @@ if !exists("g:no_plugin_maps") && !exists("g:no_behave_maps")
 endif
 
 function! s:jump(command,count)
+  let filename = ""
+  let lineno = 0
 python << PYEND
 if not('parsed_data' in globals()):
     startdir = vim.eval("expand('%:p:h:h')")
@@ -67,9 +69,10 @@ if not('parsed_data' in globals()):
 
 curline = vim.current.line.strip((string.punctuation+string.whitespace))
 res = parsed_data.get_step(curline)
-fname, lno = res
-vim.command("let filename = '%s'" % fname)
-vim.command("let lineno = %s" % lno)
+if res:
+    fname, lno = res
+    vim.command("let filename = '%s'" % fname)
+    vim.command("let lineno = %s" % lno)
 PYEND
 
   if len(filename) == 0 || lineno == 0
