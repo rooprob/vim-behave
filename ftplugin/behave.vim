@@ -33,16 +33,6 @@ if !exists("g:no_plugin_maps") && !exists("g:no_behave_maps")
   nnoremap <silent><buffer> <C-]>       :exe <SID>jump('edit',v:count)<CR><CR>
   nnoremap <silent><buffer> [<C-D>      :exe <SID>jump('edit',v:count)<CR><CR>
   nnoremap <silent><buffer> ]<C-D>      :exe <SID>jump('edit',v:count)<CR><CR>
-  " nnoremap <silent><buffer> <C-]>       :<C-U>exe <SID>jump('edit',v:count)<CR>
-  " nnoremap <silent><buffer> [<C-D>      :<C-U>exe <SID>jump('edit',v:count)<CR>
-  " nnoremap <silent><buffer> ]<C-D>      :<C-U>exe <SID>jump('edit',v:count)<CR>
-  " nnoremap <silent><buffer> <C-W>]      :<C-U>exe <SID>jump('split',v:count)<CR>
-  " nnoremap <silent><buffer> <C-W><C-]>  :<C-U>exe <SID>jump('split',v:count)<CR>
-  " nnoremap <silent><buffer> <C-W>d      :<C-U>exe <SID>jump('split',v:count)<CR>
-  " nnoremap <silent><buffer> <C-W><C-D>  :<C-U>exe <SID>jump('split',v:count)<CR>
-  " nnoremap <silent><buffer> <C-W>}      :<C-U>exe <SID>jump('pedit',v:count)<CR>
-  " nnoremap <silent><buffer> [d          :<C-U>exe <SID>jump('pedit',v:count)<CR>
-  " nnoremap <silent><buffer> ]d          :<C-U>exe <SID>jump('pedit',v:count)<CR>
   let b:undo_ftplugin .=
         \ "|sil! nunmap <buffer> <C-]>" .
         \ "|sil! nunmap <buffer> [<C-D>" .
