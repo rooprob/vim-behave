@@ -78,4 +78,151 @@ endfunction
 function! BehaveComplete(findstart,base) abort
 endfunction
 
+" code stolen from pytest.vim
+" XXX rooprob 2014-12-29
+
+function! s:BehaveRunInSplitWindow(path)
+    let cmd = "behave " . a:path
+    echom "inside RunInSplit with path=" . a:path
+    if exists("g:ConqueTerm_Loaded")
+        call conque_term#open(cmd, ['split', 'resize 20'], 0)
+    else
+        let command = join(map(split(cmd), 'expand(v:val)'))
+        let command = join(map(split(cmd), 'expand(v:val)'))
+        let winnr = bufwinnr('BehaveVerbose.behave')
+        silent! execute  winnr < 0 ? 'botright new ' . 'BehaveVerbose.behave' : winnr . 'wincmd w'
+        setlocal buftype=nowrite bufhidden=wipe nobuflisted noswapfile nowrap number filetype=behave
+        silent! execute 'silent %!'. command
+        silent! execute 'resize ' . line('$')
+        silent! execute 'nnoremap <silent> <buffer> q :q! <CR>'
+        call s:BehaveSyntax()
+    endif
+    autocmd BufEnter LastSession.Behave call s:BehaveCloseIfLastWindow()
+endfunction
+
+function! s:LastSession()
+    echom "inside LastSession, calling BehaveClearAll"
+    call s:BehaveClearAll()
+    if (len(g:behave_last_session) == 0)
+        call s:BehaveEcho("There is currently no saved last session to display")
+        return
+    endif
+	let winnr = bufwinnr('LastSession.behave')
+	silent! execute  winnr < 0 ? 'botright new ' . 'LastSession.behave' : winnr . 'wincmd w'
+	setlocal buftype=nowrite bufhidden=wipe nobuflisted noswapfile nowrap number filetype=behave
+    let session = split(g:behave_last_session, '\n')
+    call append(0, session)
+	silent! execute 'resize ' . line('$')
+    silent! execute 'normal! gg'
+    autocmd! BufEnter LastSession.behave call s:BehaveCloseIfLastWindow()
+    nnoremap <silent> <buffer> q       :call <sid>BehaveClearAll(1)<CR>
+    nnoremap <silent> <buffer> <Enter> :call <sid>BehaveClearAll(1)<CR>
+    call s:BehaveSyntax()
+    exe 'wincmd p'
+endfunction
+
+" Close the Pytest buffer if it is the last one open
+function! s:BehaveCloseIfLastWindow()
+  if winnr("$") == 1
+    q
+  endif
+endfunction
+
+function! s:BehaveSyntax() abort
+  let b:current_syntax = 'behave'
+"  syn match BehavePlatform              '\v^(platform(.*))'
+"  syn match BehaveTitleDecoration       "\v\={2,}"
+"  syn match BehaveTitle                 "\v\s+(test session starts)\s+"
+"  syn match BehaveCollecting            "\v(collecting\s+(.*))"
+"  syn match BehavePythonFile            "\v((.*.py\s+))"
+"  syn match BehaveFooterFail            "\v\s+((.*)(failed|error) in(.*))\s+"
+"  syn match BehaveFooter                "\v\s+((.*)passed in(.*))\s+"
+"  syn match BehaveFailures              "\v\s+(FAILURES|ERRORS)\s+"
+"  syn match BehaveErrors                "\v^E\s+(.*)"
+"  syn match BehaveDelimiter             "\v_{3,}"
+"  syn match BehaveFailedTest            "\v_{3,}\s+(.*)\s+_{3,}"
+"
+"  hi def link BehavePythonFile          String
+"  hi def link BehavePlatform            String
+"  hi def link BehaveCollecting          String
+"  hi def link BehaveTitleDecoration     Comment
+"  hi def link BehaveTitle               String
+"  hi def link BehaveFooterFail          String
+"  hi def link BehaveFooter              String
+"  hi def link BehaveFailures            Number
+"  hi def link BehaveErrors              Number
+"  hi def link BehaveDelimiter           Comment
+"  hi def link BehaveFailedTest          Comment
+endfunction
+
+function! s:BehaveCurrentPath()
+    let cwd = '"' . expand("%:p") . '"'
+    return cwd
+endfunction
+
+function! s:ThisBehave()
+    let save_cursor = getpos('.')
+    call s:BehaveClearAll()
+    let abspath     = s:BehaveCurrentPath()
+    let message  = "behave ==> Running tests in: " . abspath
+    call s:BehaveEcho(message, 1)
+
+    let path = abspath
+
+    call s:BehaveRunInSplitWindow(path)
+endfunction
+
+function! s:BehaveEcho(msg, ...)
+    redraw!
+    let x=&ruler | let y=&showcmd
+    set noruler noshowcmd
+    if (a:0 == 1)
+        echo a:msg
+    else
+        echohl WarningMsg | echo a:msg | echohl None
+    endif
+
+    let &ruler=x | let &showcmd=y
+endfun
+
+function! s:BehaveClearAll(...)
+    call s:BehaveEcho("inside BehaveClearAll")
+    let current = winnr()
+    let bufferL = [ 'Fails.behave', 'LastSession.behave', 'ShowError.behave', 'BehaveVerbose.behave' ]
+    for b in bufferL
+        let _window = bufwinnr(b)
+        if (_window != -1)
+            silent! execute _window . 'wincmd w'
+            silent! execute 'q'
+        endif
+    endfor
+
+    " Remove any echoed messages
+    if (a:0 == 1)
+        " Try going back to our starting window
+        " and remove any left messages
+        call s:BehaveEcho('')
+        silent! execute 'wincmd p'
+    else
+        execute current . 'wincmd w'
+    endif
+endfunction
+
+function! s:BehaveProxy(action, ...)
+    if (executable("behave") == 0)
+        call s:BehaveEcho("behave not found. This plugin needs behave installed and accessible")
+        return
+    endif
+
+    " Some defaults
+    let verbose = 0
+    let pdb     = 'False'
+    let looponfail = 0
+    let delgado = []
+    let verbose = 1
+
+    call s:ThisBehave()
+endfunction
+
+command! -nargs=+ -complete=custom,s:Completion Behave call s:BehaveProxy(<f-args>)
 " vim:set sts=2 sw=2:
