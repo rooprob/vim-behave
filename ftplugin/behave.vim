@@ -80,41 +80,38 @@ endfunction
 
 " code stolen from pytest.vim
 " XXX rooprob 2014-12-29
-
 function! s:BehaveRunInSplitWindow(path)
-    let cmd = "behave " . a:path
-    echom "inside RunInSplit with path=" . a:path
-    if exists("g:ConqueTerm_Loaded")
-        call conque_term#open(cmd, ['split', 'resize 20'], 0)
-    else
-        let command = join(map(split(cmd), 'expand(v:val)'))
-        let command = join(map(split(cmd), 'expand(v:val)'))
-        let winnr = bufwinnr('BehaveVerbose.behave')
-        silent! execute  winnr < 0 ? 'botright new ' . 'BehaveVerbose.behave' : winnr . 'wincmd w'
-        setlocal buftype=nowrite bufhidden=wipe nobuflisted noswapfile nowrap number filetype=behave
-        silent! execute 'silent %!'. command
-        silent! execute 'resize ' . line('$')
-        silent! execute 'nnoremap <silent> <buffer> q :q! <CR>'
-        call s:BehaveSyntax()
-    endif
-    autocmd BufEnter LastSession.Behave call s:BehaveCloseIfLastWindow()
+  let cmd = "behave " . a:path
+  if exists("g:ConqueTerm_Loaded")
+    call conque_term#open(cmd, ['split', 'resize 20'], 0)
+  else
+    let command = join(map(split(cmd), 'expand(v:val)'))
+    let winnr = bufwinnr('BehaveVerbose.behave')
+    silent! execute  winnr < 0 ? 'botright new ' . 'BehaveVerbose.behave' : winnr . 'wincmd w'
+    setlocal buftype=nowrite bufhidden=wipe nobuflisted noswapfile nowrap number filetype=cucumber
+    silent! execute 'silent %!'. command
+    silent! execute 'resize ' . line('$')
+    silent! execute 'nnoremap <silent> <buffer> q :q! <CR>'
+    call s:BehaveSyntax()
+  endif
+  autocmd BufEnter BehaveLastSession.behave call s:BehaveCloseIfLastWindow()
 endfunction
 
-function! s:LastSession()
+function! s:BehaveLastSession()
     echom "inside LastSession, calling BehaveClearAll"
     call s:BehaveClearAll()
     if (len(g:behave_last_session) == 0)
         call s:BehaveEcho("There is currently no saved last session to display")
         return
     endif
-	let winnr = bufwinnr('LastSession.behave')
-	silent! execute  winnr < 0 ? 'botright new ' . 'LastSession.behave' : winnr . 'wincmd w'
+	let winnr = bufwinnr('BehaveLastSession.behave')
+	silent! execute  winnr < 0 ? 'botright new ' . 'BehaveLastSession.behave' : winnr . 'wincmd w'
 	setlocal buftype=nowrite bufhidden=wipe nobuflisted noswapfile nowrap number filetype=behave
     let session = split(g:behave_last_session, '\n')
     call append(0, session)
 	silent! execute 'resize ' . line('$')
     silent! execute 'normal! gg'
-    autocmd! BufEnter LastSession.behave call s:BehaveCloseIfLastWindow()
+    autocmd! BufEnter BehaveLastSession.behave call s:BehaveCloseIfLastWindow()
     nnoremap <silent> <buffer> q       :call <sid>BehaveClearAll(1)<CR>
     nnoremap <silent> <buffer> <Enter> :call <sid>BehaveClearAll(1)<CR>
     call s:BehaveSyntax()
@@ -188,7 +185,7 @@ endfun
 function! s:BehaveClearAll(...)
     call s:BehaveEcho("inside BehaveClearAll")
     let current = winnr()
-    let bufferL = [ 'Fails.behave', 'LastSession.behave', 'ShowError.behave', 'BehaveVerbose.behave' ]
+    let bufferL = [ 'Fails.behave', 'BehaveLastSession.behave', 'ShowError.behave', 'BehaveVerbose.behave' ]
     for b in bufferL
         let _window = bufwinnr(b)
         if (_window != -1)
@@ -208,21 +205,13 @@ function! s:BehaveClearAll(...)
     endif
 endfunction
 
-function! s:BehaveProxy(action, ...)
+function! s:BehaveProxy()
     if (executable("behave") == 0)
         call s:BehaveEcho("behave not found. This plugin needs behave installed and accessible")
         return
     endif
-
-    " Some defaults
-    let verbose = 0
-    let pdb     = 'False'
-    let looponfail = 0
-    let delgado = []
-    let verbose = 1
-
     call s:ThisBehave()
 endfunction
 
-command! -nargs=+ -complete=custom,s:Completion Behave call s:BehaveProxy(<f-args>)
+command! -complete=custom,s:Completion Behave call s:BehaveProxy()
 " vim:set sts=2 sw=2:
